@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/app_bar"
-        tools:context="vendetta.androidbenchmark.MainActivity">
+        tools:context="vendetta.androidbenchmark.OldMainActivity">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"

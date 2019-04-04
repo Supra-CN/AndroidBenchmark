@@ -22,7 +22,7 @@ import stopwatch.Timer;
  * Measures download speed by downloading a large file from http://www.engineerhammad.com.
  */
 public class NetworkBenchmark implements IBenchmark {
-    private static final String FILE_ADDRESS = "ftp://speedtest:speedtest@ftp.otenet.gr/test1Gb.db";
+    private static final String FILE_ADDRESS = "http://downapp.baidu.com/baidusearch/AndroidPhone/11.6.1.10/1/757p/20190401163341/baidusearch_AndroidPhone_11-6-1-10_757p.apk";
     private static final int MAX_FILE_SIZE = 1024 * 1024 * 512;
     private static final int BUFFER_SIZE = 1024 * 1024 * 16; // Buffer size in bytes.
 

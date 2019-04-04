@@ -10,12 +10,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
-import vendetta.androidbenchmark.MainActivity;
+import vendetta.androidbenchmark.OldMainActivity;
 import vendetta.androidbenchmark.ScoreActivity;
 
 /**
@@ -81,7 +80,7 @@ public class Database {
                 HashMap<String, String> tmp = (HashMap<String, String>) dataSnapshot.getValue();
                 if (tmp != null)
                     dbUserScores.updateAll(tmp);
-                MainActivity.updateScores(dbUserScores, mainActivityContext);
+                OldMainActivity.updateScores(dbUserScores, mainActivityContext);
                 Log.d(TAG, "UserScores read from DB");
             }
 

@@ -14,6 +14,8 @@ import database.Score;
  */
 
 public class BenchmarkSuite implements IBenchmark {
+    private static final String LOG_TAG = BenchmarkSuite.class.getSimpleName();
+
     ArrayList<IBenchmark> benchmarkArr;
     String extra;
 
@@ -28,7 +30,7 @@ public class BenchmarkSuite implements IBenchmark {
         for (Benchmarks bench : Benchmarks.values()) {
             if (bench != Benchmarks.BenchmarkSuite) {
                 try {
-                    Log.d("Debug: ", bench.toString());
+                    Log.d(LOG_TAG, bench.toString());
                     sb.append(bench.toString()+'\n');
                     IBenchmark benchmark = (IBenchmark) Class.forName("benchmark." + bench.toString().toLowerCase() + "." + bench.toString()).getConstructor().newInstance();
                     benchmark.initialize();
@@ -58,10 +60,11 @@ public class BenchmarkSuite implements IBenchmark {
 
     @Override
     public void run() {
+        Log.i(LOG_TAG, "run");
         for (IBenchmark benchmark : benchmarkArr) {
+            Log.i(LOG_TAG, "run: " + benchmark.getInfo());
             benchmark.run();
         }
-
     }
 
     @Override
@@ -88,7 +91,7 @@ public class BenchmarkSuite implements IBenchmark {
         StringBuilder sb = new StringBuilder();
         for (IBenchmark benchmark : benchmarkArr) {
             Score current = benchmark.getScore();
-            Database.postBenchScore(current);
+//            Database.postBenchScore(current);
             if (Double.parseDouble(current.getResult()) != 0) {
                 result *= Double.parseDouble(current.getResult());
                 cnt++;

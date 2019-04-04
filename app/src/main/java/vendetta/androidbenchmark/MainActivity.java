@@ -1,78 +1,94 @@
 package vendetta.androidbenchmark;
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TableRow;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.Map;
+public class MainActivity extends AppCompatActivity {
 
-import benchmark.Benchmarks;
-import database.Database;
-import database.UserScores;
-
-public class MainActivity extends BaseActivity {
-    private static LinearLayout scoresContainer;
+    InternalTest mLocalTest;
+    InternalTest mRemoteTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.content_main);
-        scoresContainer = (LinearLayout) findViewById(R.id.scoreContainerLayout);
-        Database.establishConnection(this);
+        setContentView(R.layout.activity_main);
+        InternalTest mLocalTest = createLocalTest();
+        InternalTest mRemoteTest = createRemoteTest();
     }
 
-    public static void updateScores(UserScores userScores, Context context) {
-        boolean isDifferent = false;
-        scoresContainer.removeAllViewsInLayout();
-        for (final Map.Entry<String, String> entry : userScores.getScoreMap().entrySet()) {
+    InternalTest createLocalTest() {
+        return new InternalTest("local test", R.id.monitor_local, R.id.progress_local, R.id.btn_local_run) {
 
-            LinearLayout currentLayout = new LinearLayout(context);
-            currentLayout.setOrientation(LinearLayout.HORIZONTAL);
-            if (isDifferent) currentLayout.setBackgroundColor(Color.parseColor("#e8eaf6"));
-            else currentLayout.setBackgroundColor(Color.parseColor("#a9b4f2"));
-            isDifferent = !isDifferent;
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            currentLayout.setLayoutParams(lp);
+            Test test;
 
-            TextView benchNameTView = new TextView(context);
-            benchNameTView.setTextAppearance(context, android.R.style.TextAppearance_Large);
-            TableRow.LayoutParams tParams = new TableRow.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
-            benchNameTView.setLayoutParams(tParams);
-            benchNameTView.setMinWidth(60);
-            benchNameTView.setText(entry.getKey());
-
-            TextView ScoreValTView = new TextView(context);
-            ScoreValTView.setTextAppearance(context, android.R.style.TextAppearance_Large);
-            tParams = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f);
-            ScoreValTView.setLayoutParams(tParams);
-            ScoreValTView.setGravity(Gravity.RIGHT);
-            ScoreValTView.setText(entry.getValue());
-            currentLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent benchActivityIntent = new Intent(v.getContext(), BenchmarkActivity.class);
-                    benchActivityIntent.putExtra(BENCH_NAME, entry.getKey());
-                    v.getContext().startActivity(benchActivityIntent);
+            @Override
+            public void onClick(View v) {
+                if (null != test) {
+                    monitor.append("test is running!");
+                    return;
                 }
-            });
-
-            currentLayout.addView(benchNameTView);
-            currentLayout.addView(ScoreValTView);
-            scoresContainer.addView(currentLayout);
-        }
+                super.onClick(v);
+                test = new Test();
+                test.run();
+            }
+        };
     }
 
-    public void startFullBenchmark(View v) {
-        Intent benchActivityIntent = new Intent(v.getContext(), BenchmarkActivity.class);
-        benchActivityIntent.putExtra(BENCH_NAME, Benchmarks.BenchmarkSuite.toString());
-        v.getContext().startActivity(benchActivityIntent);
+    InternalTest createRemoteTest() {
+        return new InternalTest("remote test", R.id.monitor_remote, R.id.progress_remote, R.id.btn_remote_run) {
+            @Override
+            public void onClick(View v) {
+                super.onClick(v);
+
+            }
+        };
+    }
+
+
+    private abstract class InternalTest implements View.OnClickListener, TextWatcher {
+        final String testLabel;
+        final TextView monitor;
+        final ProgressBar progress;
+        final Button button;
+
+        InternalTest(String testLabel, int monitor, int progresss, int button) {
+            this.testLabel = testLabel;
+            this.monitor = findViewById(monitor);
+            this.progress = findViewById(progresss);
+            this.button = findViewById(button);
+
+            this.monitor.setMovementMethod(ScrollingMovementMethod.getInstance());
+            this.monitor.addTextChangedListener(this);
+            this.button.setOnClickListener(this);
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            Selection.setSelection(s, s.length());
+        }
+
+        @Override
+        public void onClick(View v) {
+            this.monitor.append(testLabel + " start!\n");
+        }
     }
 
 }

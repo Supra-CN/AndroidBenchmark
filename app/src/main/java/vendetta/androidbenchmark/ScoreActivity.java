@@ -46,13 +46,13 @@ public class ScoreActivity extends BaseActivity {
         Intent intent = getIntent();
         benchName = intent.getStringExtra(BENCH_NAME);
         wasBenchRun = intent.getBooleanExtra(BENCH_RUN, false);
-        if (wasBenchRun) Database.getBenchScore(benchName);
-        else {
+//        if (wasBenchRun) Database.getBenchScore(benchName);
+//        else {
             scoreTv.setText(benchName);
             extraTV.setText("Here are the scores other users have gotten for this Benchmark:");
             result.setText("Rankings for");
-        }
-        Database.getRankings(benchName, this);
+//        }
+//        Database.getRankings(benchName, this);
     }
 
     public static void updateResult(Score score) {

@@ -142,7 +142,7 @@ public class BaseActivity extends AppCompatActivity
         } else if (id == R.id.nav_netbench) {
             benchActivityIntent.putExtra(BENCH_NAME, Benchmarks.NetworkBenchmark.toString());
         } else if (id == R.id.nav_rankings) {
-            benchActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+            benchActivityIntent = new Intent(getApplicationContext(), OldMainActivity.class);
             benchActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         } else if (id == R.id.nav_benchmark) {
             benchActivityIntent.putExtra(BENCH_NAME, Benchmarks.BenchmarkSuite.toString());
