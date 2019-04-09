@@ -70,6 +70,19 @@ public class BgService extends Service {
         LocalTest test = new LocalTest();
         test.run(new Test.Callback() {
             @Override
+            public void onUpdate(String msg) {
+
+                Message msg = Message.obtain();
+                msg.what = RemoteTest.MSG_RESULT;
+                msg.getData().putString(RemoteTest.MSG_DATA_RESULT, result);
+                try {
+                    messenger.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
             public void onProgress(float progress) {
                 Message msg = Message.obtain();
                 msg.what = RemoteTest.MSG_PROGRESS;

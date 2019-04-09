@@ -25,6 +25,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
+import okio.BufferedSource;
 import okio.Okio;
 import okio.Sink;
 import okio.Source;
@@ -47,6 +48,8 @@ public class NetworkBenchmark implements IBenchmark {
     private String extra;
     private ConsoleLogger logger = new ConsoleLogger();
     private volatile boolean shouldTestRun;
+
+    long size;
 
     @Override
     public void initialize() {
@@ -83,17 +86,21 @@ public class NetworkBenchmark implements IBenchmark {
         timer.start();
         this.compute();
         if (null != mCallback) {
-            mCallback.onUpdate("下载："+timer.stop()+"ms \n >> Downloaded "+size/(1024*1024)+" MB with a speed of "+String.format(java.util.Locale.US,"%.2f",result)+" MB/s");
+            mCallback.onUpdate("下载：" + timer.stop() + "ms \n >> Downloaded " + size / (1024 * 1024) + " MB with a speed of " + String.format(java.util.Locale.US, "%.2f", result) + " MB/s");
         }
     }
 
     @Override
     public void compute() {
+        if (!shouldTestRun) {
+            return;
+        }
         this.shouldTestRun = true;
         logger.write("Benchmark started");
         logger.write("" + BUFFER_SIZE);
+        Timer timer = new Timer();
+        timer.start();
         try {
-
 
             Request request = new Request.Builder().url(FILE_ADDRESS).cacheControl(CacheControl.FORCE_NETWORK).build();
             Response response = new OkHttpClient.Builder().build().newCall(request).execute();
@@ -107,44 +114,33 @@ public class NetworkBenchmark implements IBenchmark {
                 return;
             }
 
-            long size = body.contentLength();
+            size = body.contentLength();
 
-            Source source = body.source();
+            BufferedSource source = body.source();
 
             File file = new File(Environment.getExternalStorageDirectory(), UUID.randomUUID().toString());
 
-            Okio.sink(file);
+            source.readAll(Okio.sink(file));
+
+            long cost = timer.stop();
+
+            result = (double) size / cost;
 
 
-
-
-
-            byte[] buffer = new byte[bufferSize];
-            Timer timer = new Timer();
-            boolean eof = false;
-            int totalDownload = 0;
-            while (totalDownload < size && this.shouldTestRun) {
-                timer.start();
-                try {
-                    //logger.write("Downloading....");
-                    stream.readFully(buffer);
-                } catch (EOFException e) {
-                    eof = true;
-                }
-                long measure = timer.stop();
-                if (eof) {
-                    break;
-                }
-                totalDownload += bufferSize;
-                //logger.write("Download " + bufferSize + " " + (bufferSize / (1024 * 1024)));
-                measurements.add((double)bufferSize / (1024 * 1024) / (measure / 1000000000.0));
-            }
-            double sum = 0;
-            for (double each : measurements) {
-                //logger.write("" + String.format(java.util.Locale.US,"%.6f", each));
-                sum += each;
-            }
-            this.result = sum * 4 / measurements.size();
+//            int totalDownload = 0;
+//            while (totalDownload < size && this.shouldTestRun) {
+//
+//                long measure = timer.stop();
+//                totalDownload += bufferSize;
+//                //logger.write("Download " + bufferSize + " " + (bufferSize / (1024 * 1024)));
+//                measurements.add((double)bufferSize / (1024 * 1024) / (measure / 1000000000.0));
+//            }
+//            double sum = 0;
+//            for (double each : measurements) {
+//                //logger.write("" + String.format(java.util.Locale.US,"%.6f", each));
+//                sum += each;
+//            }
+//            this.result = sum * 4 / measurements.size();
         } catch (IOException e) {
             logger.write(e.toString());
         } finally {
@@ -166,12 +162,12 @@ public class NetworkBenchmark implements IBenchmark {
     public Score getScore() {
         return new Score(
                 Benchmarks.NetworkBenchmark.toString(),
-                Long.toString((long)(this.result * 1000)),
-                "Downloaded "+size/(1024*1024)+" MB with a speed of "+String.format(java.util.Locale.US,"%.2f",result)+" MB/s");
+                Long.toString((long) (this.result * 1000)),
+                "Downloaded " + size / (1024 * 1024) + " MB with a speed of " + String.format(java.util.Locale.US, "%.2f", result) + " MB/s");
     }
 
     @Override
-    public String getInfo(){
+    public String getInfo() {
         return "Network Speed Benchmark:\nMeasures download speed by downloading a 64 MB file from http://www.engineerhammad.com.";
     }
 }

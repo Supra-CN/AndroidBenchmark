@@ -87,6 +87,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             monitor.append(testLabel + " start!\n");
             isRunning = true;
             test.run(new Test.Callback() {
+
+                @Override
+                public void onUpdate(String msg) {
+                    isRunning = false;
+                    monitor.append(msg + "\n");
+                }
+
                 @Override
                 public void onProgress(float progress) {
                     InternalTest.this.progress.setProgress(Float.valueOf(progress * progressResolution).intValue(), true);
