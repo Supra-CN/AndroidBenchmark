@@ -47,7 +47,7 @@ public class NetworkBenchmark implements IBenchmark {
     private double result = 0; // MB/SECOND
     private String extra;
     private ConsoleLogger logger = new ConsoleLogger();
-    private volatile boolean shouldTestRun;
+    private volatile boolean shouldTestRun = true;
 
     long size;
 
@@ -95,7 +95,7 @@ public class NetworkBenchmark implements IBenchmark {
         if (!shouldTestRun) {
             return;
         }
-        this.shouldTestRun = true;
+        this.shouldTestRun = false;
         logger.write("Benchmark started");
         logger.write("" + BUFFER_SIZE);
         Timer timer = new Timer();
@@ -118,7 +118,7 @@ public class NetworkBenchmark implements IBenchmark {
 
             BufferedSource source = body.source();
 
-            File file = new File(Environment.getExternalStorageDirectory(), UUID.randomUUID().toString());
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), UUID.randomUUID().toString());
 
             source.readAll(Okio.sink(file));
 
@@ -144,13 +144,12 @@ public class NetworkBenchmark implements IBenchmark {
         } catch (IOException e) {
             logger.write(e.toString());
         } finally {
-            this.shouldTestRun = false;
+            this.shouldTestRun = true;
         }
     }
 
     @Override
     public void stop() {
-        this.shouldTestRun = false;
     }
 
     @Override

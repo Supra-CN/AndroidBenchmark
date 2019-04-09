@@ -15,8 +15,10 @@ import java.util.Deque;
 public class RemoteTest implements Test {
     public static final int MSG_RESULT = 1;
     public static final int MSG_PROGRESS = 2;
+    public static final int MSG_UPDATE = 3;
     public static final String MSG_DATA_RESULT = "result";
     public static final String MSG_DATA_PROGRESS = "progress";
+    public static final String MSG_DATA_UPDATE = "update";
 
     private static RemoteTest sInstant;
 
@@ -94,6 +96,18 @@ public class RemoteTest implements Test {
                     App.self.unbindService(mConnection);
                     mConnection = null;
                     mService = null;
+                    break;
+                case MSG_PROGRESS:
+                    if (null != mCallback) {
+                        mCallback.onProgress(msg.getData().getFloat(MSG_DATA_PROGRESS, 0));
+                        mCallback = null;
+                    }
+                    break;
+                case MSG_UPDATE:
+                    if (null != mCallback) {
+                        mCallback.onUpdate(msg.getData().getString(MSG_DATA_UPDATE, ""));
+                        mCallback = null;
+                    }
                     break;
                 default:
                     break;

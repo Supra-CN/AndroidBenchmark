@@ -29,6 +29,8 @@ public class BgService extends Service {
 
     public static final int MSG_TEST = 1;
 
+    Messenger mReplyTo;
+
     private static class MsgHandler extends Handler {
 
         final WeakReference<BgService> mRefHost;
@@ -43,6 +45,9 @@ public class BgService extends Service {
             BgService host = mRefHost.get();
             if (null == host) {
                 return;
+            }
+            if (null != msg.replyTo) {
+                host.mReplyTo = msg.replyTo;
             }
 
             switch (msg.what) {
@@ -70,11 +75,11 @@ public class BgService extends Service {
         LocalTest test = new LocalTest();
         test.run(new Test.Callback() {
             @Override
-            public void onUpdate(String msg) {
+            public void onUpdate(String data) {
 
                 Message msg = Message.obtain();
-                msg.what = RemoteTest.MSG_RESULT;
-                msg.getData().putString(RemoteTest.MSG_DATA_RESULT, result);
+                msg.what = RemoteTest.MSG_UPDATE;
+                msg.getData().putString(RemoteTest.MSG_DATA_UPDATE, data);
                 try {
                     messenger.send(msg);
                 } catch (RemoteException e) {
