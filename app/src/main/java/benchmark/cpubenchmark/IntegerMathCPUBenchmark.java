@@ -4,6 +4,7 @@ import benchmark.IBenchmark;
 import database.Score;
 import log.myTimeUnit;
 import stopwatch.Timer;
+import vendetta.androidbenchmark.Test;
 
 /**
  * Created by Vendetta on 07-Mar-17.
@@ -14,6 +15,13 @@ public class IntegerMathCPUBenchmark implements IBenchmark {
     private volatile boolean shouldTestRun;
     private long result;
     private String extra;
+
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
+    }
 
     @Override
     public void initialize(){
@@ -50,6 +58,9 @@ public class IntegerMathCPUBenchmark implements IBenchmark {
         timer.start();
         this.compute();
         this.result = timer.stop();
+        if (null != mCallback) {
+            mCallback.onUpdate("六千万整数计算："+result+"ms");
+        }
     }
 
     /**

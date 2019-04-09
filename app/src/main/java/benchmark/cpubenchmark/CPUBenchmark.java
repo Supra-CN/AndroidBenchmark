@@ -5,6 +5,7 @@ import android.util.Log;
 import benchmark.Benchmarks;
 import benchmark.IBenchmark;
 import database.Score;
+import vendetta.androidbenchmark.Test;
 
 /**
  * Created by Vendetta on 24-May-17.
@@ -16,10 +17,20 @@ public class CPUBenchmark implements IBenchmark {
     private PiDigitsCPUBenchmark piBench = new PiDigitsCPUBenchmark();
 
 
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
+    }
+
     @Override
     public void initialize() {
+        floatBench.setCallback(mCallback);
         floatBench.initialize();
+        intBench.setCallback(mCallback);
         intBench.initialize();
+        piBench.setCallback(mCallback);
         piBench.initialize();
 
     }

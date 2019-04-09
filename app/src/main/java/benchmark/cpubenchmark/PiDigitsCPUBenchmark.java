@@ -6,6 +6,7 @@ import benchmark.IBenchmark;
 import database.Score;
 import log.myTimeUnit;
 import stopwatch.Timer;
+import vendetta.androidbenchmark.Test;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -33,6 +34,13 @@ public class PiDigitsCPUBenchmark implements IBenchmark {
     private BigDecimal piResult = new BigDecimal(0);
     private int scale = 5000; // The scale should usually be equal to TOTAL_ITERATIONS
     private ArrayList<Future<BigDecimal>> chunksResult = new ArrayList<>();
+
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
+    }
 
     @Override
     public void initialize() {
@@ -70,6 +78,9 @@ public class PiDigitsCPUBenchmark implements IBenchmark {
         timer.start();
         this.compute();
         this.result = timer.stop();
+        if (null != mCallback) {
+            mCallback.onUpdate("五千圆周率计算："+result+"ms");
+        }
     }
 
     @Override

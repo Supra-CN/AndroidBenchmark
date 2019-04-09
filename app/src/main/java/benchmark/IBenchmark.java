@@ -1,6 +1,7 @@
 package benchmark;
 
 import database.Score;
+import vendetta.androidbenchmark.Test;
 
 /**
  * Created by Vendetta on 07-Mar-17.
@@ -61,5 +62,8 @@ public interface IBenchmark {
      * Does the actual computation.
      */
     public void compute();
+
+
+    void setCallback(Test.Callback callback);
 
 }

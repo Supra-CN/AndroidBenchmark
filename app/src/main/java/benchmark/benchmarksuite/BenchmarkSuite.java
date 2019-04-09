@@ -8,6 +8,7 @@ import benchmark.Benchmarks;
 import benchmark.IBenchmark;
 import database.Database;
 import database.Score;
+import vendetta.androidbenchmark.Test;
 
 /**
  * Created by Vendetta on 24-May-17.
@@ -33,6 +34,7 @@ public class BenchmarkSuite implements IBenchmark {
                     Log.d(LOG_TAG, bench.toString());
                     sb.append(bench.toString()+'\n');
                     IBenchmark benchmark = (IBenchmark) Class.forName("benchmark." + bench.toString().toLowerCase() + "." + bench.toString()).getConstructor().newInstance();
+                    benchmark.setCallback(mCallback);
                     benchmark.initialize();
                     benchmarkArr.add(benchmark);
                 } catch (Exception e) {
@@ -41,6 +43,13 @@ public class BenchmarkSuite implements IBenchmark {
             }
         }
         extra += sb.toString();
+    }
+
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
     }
 
     @Override
@@ -61,9 +70,15 @@ public class BenchmarkSuite implements IBenchmark {
     @Override
     public void run() {
         Log.i(LOG_TAG, "run");
+        int total = benchmarkArr.size();
+        int i = 0;
         for (IBenchmark benchmark : benchmarkArr) {
             Log.i(LOG_TAG, "run: " + benchmark.getInfo());
             benchmark.run();
+            i++;
+            if (null != mCallback) {
+                mCallback.onProgress(i / total);
+            }
         }
     }
 

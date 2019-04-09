@@ -6,12 +6,13 @@ import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     InternalTest mLocalTest;
     InternalTest mRemoteTest;
@@ -20,51 +21,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        InternalTest mLocalTest = createLocalTest();
-        InternalTest mRemoteTest = createRemoteTest();
+        mLocalTest = new InternalTest("local test", R.id.monitor_local, R.id.progress_local, R.id.btn_local_run, new LocalTest());
+        mRemoteTest = new InternalTest("remote test", R.id.monitor_remote, R.id.progress_remote, R.id.btn_remote_run, RemoteTest.get());
+        findViewById(R.id.btn_both_run).setOnClickListener(this);
+        Log.i("supra", "");
     }
 
-    InternalTest createLocalTest() {
-        return new InternalTest("local test", R.id.monitor_local, R.id.progress_local, R.id.btn_local_run) {
-
-            Test test;
-
-            @Override
-            public void onClick(View v) {
-                if (null != test) {
-                    monitor.append("test is running!");
-                    return;
-                }
-                super.onClick(v);
-                test = new Test();
-                test.run();
-            }
-        };
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_both_run:
+                mLocalTest.onClick(v);
+                mRemoteTest.onClick(v);
+                break;
+            default:
+                break;
+        }
     }
 
-    InternalTest createRemoteTest() {
-        return new InternalTest("remote test", R.id.monitor_remote, R.id.progress_remote, R.id.btn_remote_run) {
-            @Override
-            public void onClick(View v) {
-                super.onClick(v);
-
-            }
-        };
-    }
-
-
-    private abstract class InternalTest implements View.OnClickListener, TextWatcher {
+    private class InternalTest implements View.OnClickListener, TextWatcher {
         final String testLabel;
         final TextView monitor;
         final ProgressBar progress;
         final Button button;
+        final Test test;
+        boolean isRunning = false;
 
-        InternalTest(String testLabel, int monitor, int progresss, int button) {
+        static final int progressResolution = 1000;
+
+        InternalTest(String testLabel, int monitor, int progresss, int button, Test test) {
             this.testLabel = testLabel;
             this.monitor = findViewById(monitor);
             this.progress = findViewById(progresss);
             this.button = findViewById(button);
+            this.test = test;
 
+            this.progress.setMin(0);
+            this.progress.setMax(progresss);
             this.monitor.setMovementMethod(ScrollingMovementMethod.getInstance());
             this.monitor.addTextChangedListener(this);
             this.button.setOnClickListener(this);
@@ -87,7 +80,24 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            this.monitor.append(testLabel + " start!\n");
+            if (isRunning) {
+                monitor.append(testLabel + " is already running!\n");
+                return;
+            }
+            monitor.append(testLabel + " start!\n");
+            isRunning = true;
+            test.run(new Test.Callback() {
+                @Override
+                public void onProgress(float progress) {
+                    InternalTest.this.progress.setProgress(Float.valueOf(progress * progressResolution).intValue(), true);
+                }
+
+                @Override
+                public void onCallback(String result) {
+                    isRunning = false;
+                    monitor.append(result + "\n");
+                }
+            });
         }
     }
 

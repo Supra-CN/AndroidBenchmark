@@ -16,6 +16,7 @@ import database.Database;
 import database.Score;
 import log.ConsoleLogger;
 import stopwatch.Timer;
+import vendetta.androidbenchmark.Test;
 
 import static java.lang.Math.sqrt;
 
@@ -35,6 +36,13 @@ public class FilesBenchmark implements IBenchmark {
     private File file;
     private ArrayList<File> fileArr;
     private volatile boolean shouldTestRun;
+
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
+    }
 
     @Override
     public void initialize() {

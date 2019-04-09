@@ -4,6 +4,7 @@ import benchmark.IBenchmark;
 import database.Score;
 import log.myTimeUnit;
 import stopwatch.Timer;
+import vendetta.androidbenchmark.Test;
 
 /**
  * Created by Vendetta on 16-Mar-17.
@@ -13,6 +14,13 @@ public class FloatingPointMathCPUBenchmark implements IBenchmark {
     private Long size = Long.MAX_VALUE;
     private volatile boolean shouldTestRun;
     private long result;
+
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
+    }
 
     @Override
     public void initialize() {
@@ -49,6 +57,9 @@ public class FloatingPointMathCPUBenchmark implements IBenchmark {
         timer.start();
         this.compute();
         this.result = timer.stop();
+        if (null != mCallback) {
+            mCallback.onUpdate("六千万浮点计算："+result+"ms");
+        }
     }
 
     /**

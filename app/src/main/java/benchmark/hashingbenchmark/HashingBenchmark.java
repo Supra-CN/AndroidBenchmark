@@ -14,6 +14,7 @@ import benchmark.IBenchmark;
 import database.Score;
 import log.myTimeUnit;
 import stopwatch.Timer;
+import vendetta.androidbenchmark.Test;
 
 /**
  * Created by alex on 5/15/2017.
@@ -30,6 +31,13 @@ public class HashingBenchmark implements IBenchmark {
     private final List<Character> alphabet = new ArrayList<>();
     private long size = 9001L; // How many passwords to be hashed.
     private volatile boolean shouldTestRun;
+
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
+    }
 
     @Override
     public void initialize() {
@@ -66,6 +74,9 @@ public class HashingBenchmark implements IBenchmark {
         timer.start();
         this.compute();
         this.result = timer.stop();
+        if (null != mCallback) {
+            mCallback.onUpdate("九千哈希数计算："+result+"ms");
+        }
     }
 
     @Override

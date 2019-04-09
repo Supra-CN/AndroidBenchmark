@@ -1,18 +1,35 @@
 package benchmark.networkbenchmark;
 
+import android.os.Environment;
+import android.widget.Button;
+
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import benchmark.Benchmarks;
 import benchmark.IBenchmark;
 import database.Score;
 import log.ConsoleLogger;
+import okhttp3.CacheControl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.Okio;
+import okio.Sink;
+import okio.Source;
 import stopwatch.Timer;
+import vendetta.androidbenchmark.Test;
 
 /**
  * Created by alex on 5/14/2017.
@@ -26,7 +43,6 @@ public class NetworkBenchmark implements IBenchmark {
     private static final int MAX_FILE_SIZE = 1024 * 1024 * 512;
     private static final int BUFFER_SIZE = 1024 * 1024 * 16; // Buffer size in bytes.
 
-    private long size = 1024 * 1024 * 64; // How much to download.
     private double result = 0; // MB/SECOND
     private String extra;
     private ConsoleLogger logger = new ConsoleLogger();
@@ -42,7 +58,13 @@ public class NetworkBenchmark implements IBenchmark {
      */
     @Override
     public void initialize(Long size) {
-        this.size = size;
+    }
+
+    Test.Callback mCallback;
+
+    @Override
+    public void setCallback(Test.Callback callback) {
+        mCallback = callback;
     }
 
     @Override
@@ -57,22 +79,48 @@ public class NetworkBenchmark implements IBenchmark {
 
     @Override
     public void run() {
+        final Timer timer = new Timer();
+        timer.start();
         this.compute();
+        if (null != mCallback) {
+            mCallback.onUpdate("下载："+timer.stop()+"ms \n >> Downloaded "+size/(1024*1024)+" MB with a speed of "+String.format(java.util.Locale.US,"%.2f",result)+" MB/s");
+        }
     }
 
     @Override
     public void compute() {
         this.shouldTestRun = true;
         logger.write("Benchmark started");
-        int bufferSize = Math.min(BUFFER_SIZE, (int)size);
-        logger.write("" + bufferSize);
+        logger.write("" + BUFFER_SIZE);
         try {
-            URLConnection connection = new URL(FILE_ADDRESS).openConnection();
-            connection.setUseCaches(false);
-            DataInput stream = new DataInputStream(connection.getInputStream());
+
+
+            Request request = new Request.Builder().url(FILE_ADDRESS).cacheControl(CacheControl.FORCE_NETWORK).build();
+            Response response = new OkHttpClient.Builder().build().newCall(request).execute();
+
+            if (!response.isSuccessful()) {
+                return;
+            }
+
+            ResponseBody body = response.body();
+            if (null == body) {
+                return;
+            }
+
+            long size = body.contentLength();
+
+            Source source = body.source();
+
+            File file = new File(Environment.getExternalStorageDirectory(), UUID.randomUUID().toString());
+
+            Okio.sink(file);
+
+
+
+
+
             byte[] buffer = new byte[bufferSize];
             Timer timer = new Timer();
-            ArrayList<Double> measurements = new ArrayList<>((int) this.size / bufferSize);
             boolean eof = false;
             int totalDownload = 0;
             while (totalDownload < size && this.shouldTestRun) {

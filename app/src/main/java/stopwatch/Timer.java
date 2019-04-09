@@ -11,23 +11,23 @@ public class Timer implements ITimer {
 	@Override
 	public void start() {
         this.duration = 0;
-		this.startTime = System.nanoTime();
+		this.startTime = System.currentTimeMillis();
 	}
 
 	@Override
 	public long stop() {
-		duration += System.nanoTime()-this.startTime;
+		duration += System.currentTimeMillis()-this.startTime;
 		return duration;
 	}
 
 	@Override
 	public void resume() {
-		this.startTime = System.nanoTime();
+		this.startTime = System.currentTimeMillis();
 	}
 
 	@Override
 	public long pause() {
-        duration += System.nanoTime()-this.startTime;
+        duration += System.currentTimeMillis()-this.startTime;
         return duration;
 	}
 }
