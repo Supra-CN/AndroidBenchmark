@@ -100,13 +100,11 @@ public class RemoteTest implements Test {
                 case MSG_PROGRESS:
                     if (null != mCallback) {
                         mCallback.onProgress(msg.getData().getFloat(MSG_DATA_PROGRESS, 0));
-                        mCallback = null;
                     }
                     break;
                 case MSG_UPDATE:
                     if (null != mCallback) {
                         mCallback.onUpdate(msg.getData().getString(MSG_DATA_UPDATE, ""));
-                        mCallback = null;
                     }
                     break;
                 default:

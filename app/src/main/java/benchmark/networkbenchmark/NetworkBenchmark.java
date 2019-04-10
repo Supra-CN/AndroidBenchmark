@@ -13,6 +13,7 @@ import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.UUID;
 
 import benchmark.Benchmarks;
@@ -30,6 +31,7 @@ import okio.Okio;
 import okio.Sink;
 import okio.Source;
 import stopwatch.Timer;
+import vendetta.androidbenchmark.App;
 import vendetta.androidbenchmark.Test;
 
 /**
@@ -82,12 +84,7 @@ public class NetworkBenchmark implements IBenchmark {
 
     @Override
     public void run() {
-        final Timer timer = new Timer();
-        timer.start();
         this.compute();
-        if (null != mCallback) {
-            mCallback.onUpdate("下载：" + timer.stop() + "ms \n >> Downloaded " + size / (1024 * 1024) + " MB with a speed of " + String.format(java.util.Locale.US, "%.2f", result) + " MB/s");
-        }
     }
 
     @Override
@@ -100,6 +97,7 @@ public class NetworkBenchmark implements IBenchmark {
         logger.write("" + BUFFER_SIZE);
         Timer timer = new Timer();
         timer.start();
+        BufferedSource source = null;
         try {
 
             Request request = new Request.Builder().url(FILE_ADDRESS).cacheControl(CacheControl.FORCE_NETWORK).build();
@@ -115,35 +113,37 @@ public class NetworkBenchmark implements IBenchmark {
             }
 
             size = body.contentLength();
+            double sizeInMb = (double) size / 1024 / 1024;
+            if (null != mCallback) {
+                mCallback.onUpdate(String.format(Locale.getDefault(), "下载字节：%.2fMB", sizeInMb));
+            }
 
-            BufferedSource source = body.source();
+             source = body.source();
+            App.self.getExternalCacheDir();
 
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), UUID.randomUUID().toString());
+            File file = new File(App.self.getCacheDir(), UUID.randomUUID().toString());
 
             source.readAll(Okio.sink(file));
 
             long cost = timer.stop();
 
-            result = (double) size / cost;
 
+            result = sizeInMb * 1000 / cost;
 
-//            int totalDownload = 0;
-//            while (totalDownload < size && this.shouldTestRun) {
-//
-//                long measure = timer.stop();
-//                totalDownload += bufferSize;
-//                //logger.write("Download " + bufferSize + " " + (bufferSize / (1024 * 1024)));
-//                measurements.add((double)bufferSize / (1024 * 1024) / (measure / 1000000000.0));
-//            }
-//            double sum = 0;
-//            for (double each : measurements) {
-//                //logger.write("" + String.format(java.util.Locale.US,"%.6f", each));
-//                sum += each;
-//            }
-//            this.result = sum * 4 / measurements.size();
+            if (null != mCallback) {
+                mCallback.onUpdate(String.format(Locale.getDefault(), "下载时长：%dms \n下载速率：%.2fMB/s", cost, result));
+            }
+
         } catch (IOException e) {
             logger.write(e.toString());
         } finally {
+            if (null != source) {
+                try {
+                    source.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             this.shouldTestRun = true;
         }
     }

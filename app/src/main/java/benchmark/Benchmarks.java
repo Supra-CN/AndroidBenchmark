@@ -12,6 +12,6 @@ public enum Benchmarks {
     HashingBenchmark,
     NetworkBenchmark,
     //GPUBenchmark,
-    FilesBenchmark,
+//    FilesBenchmark,
     BenchmarkSuite
 }

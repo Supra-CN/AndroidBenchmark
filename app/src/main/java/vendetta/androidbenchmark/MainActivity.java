@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.brotli.dec.BrotliInputStream;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     InternalTest mLocalTest;
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mLocalTest = new InternalTest("local test", R.id.monitor_local, R.id.progress_local, R.id.btn_local_run, new LocalTest());
         mRemoteTest = new InternalTest("remote test", R.id.monitor_remote, R.id.progress_remote, R.id.btn_remote_run, RemoteTest.get());
         findViewById(R.id.btn_both_run).setOnClickListener(this);
+        findViewById(R.id.btn_clear).setOnClickListener(this);
         Log.i("supra", "");
     }
 
@@ -33,6 +36,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_both_run:
                 mLocalTest.onClick(v);
                 mRemoteTest.onClick(v);
+                break;
+            case R.id.btn_clear:
+                mLocalTest.monitor.setText("");
+                mRemoteTest.monitor.setText("");
                 break;
             default:
                 break;
@@ -75,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void afterTextChanged(Editable s) {
-            Selection.setSelection(s, s.length());
+            Selection.setSelection(s, s.length()-1);
         }
 
         @Override
@@ -102,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onCallback(String result) {
                     isRunning = false;
-                    monitor.append(result + "\n");
+                    monitor.append("\n"+result + "\n");
                 }
             });
         }
