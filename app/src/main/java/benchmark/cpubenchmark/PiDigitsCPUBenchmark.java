@@ -27,7 +27,7 @@ import java.util.concurrent.Future;
  */
 public class PiDigitsCPUBenchmark implements IBenchmark {
     private static final int THREAD_POOL_SIZE = 4;     // Number of threads.
-    private static final int TOTAL_ITERATIONS = 5000; // More iterations results in better accuracy.
+    private static final int TOTAL_ITERATIONS = 3000; // More iterations results in better accuracy.
 
     private volatile boolean shouldTestRun;
     private long result;
@@ -79,7 +79,7 @@ public class PiDigitsCPUBenchmark implements IBenchmark {
         this.compute();
         this.result = timer.stop();
         if (null != mCallback) {
-            mCallback.onUpdate("五千圆周率计算："+result+"ms");
+            mCallback.onUpdate("三千圆周率计算："+result+"ms");
         }
     }
 

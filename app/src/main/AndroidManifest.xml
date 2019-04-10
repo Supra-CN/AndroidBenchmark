@@ -23,9 +23,12 @@
         </activity>
 
         <service
-            android:name=".BgService"
+            android:name=".RemoteService"
             android:exported="false"
-            android:process=":bg"/>
+            android:process=":remote"/>
+        <service
+            android:name=".LocalService"
+            android:exported="false"/>
 
         <activity
             android:name=".OldMainActivity"

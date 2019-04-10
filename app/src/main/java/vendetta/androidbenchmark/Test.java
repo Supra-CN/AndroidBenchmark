@@ -5,7 +5,7 @@ public interface Test {
 
     interface Callback {
         void onCallback(String result);
-        void onUpdate(String msg);
+        void onUpdate(String data);
 
         void onProgress(float progress);
     }

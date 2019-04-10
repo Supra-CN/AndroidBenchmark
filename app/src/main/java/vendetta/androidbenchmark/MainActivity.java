@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final ProgressBar progress;
         final Button button;
         final Test test;
-        boolean isRunning = false;
+        long startAt = 0;
 
         static final int progressResolution = 1000;
 
@@ -87,17 +87,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onClick(View v) {
-            if (isRunning) {
+            if (startAt > 0) {
                 monitor.append(testLabel + " is already running!\n");
                 return;
             }
             monitor.append(testLabel + " start!\n");
-            isRunning = true;
+            startAt = System.currentTimeMillis();
             test.run(new Test.Callback() {
 
                 @Override
                 public void onUpdate(String msg) {
-                    isRunning = false;
                     monitor.append(msg + "\n");
                 }
 
@@ -108,8 +107,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @Override
                 public void onCallback(String result) {
-                    isRunning = false;
-                    monitor.append("\n"+result + "\n");
+//                    monitor.append("\n"+result + "\n");
+                    monitor.append("===>\nAll done cost: "+(System.currentTimeMillis()-startAt)+"ms\n\n");
+                    startAt = 0;
                 }
             });
         }
